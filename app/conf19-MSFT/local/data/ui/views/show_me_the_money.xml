@@ -1,0 +1,669 @@
+<form stylesheet="css/money.css" theme="light" hideFilters="true">
+  <label>Cost Savings</label>
+  <init>
+    <unset token="show_disks"></unset>
+    <unset token="show_disk_cost"></unset>
+    <unset token="show_vms"></unset>
+    <unset token="show_vm_cost"></unset>
+    <unset token="show_reservations"></unset>
+    <unset token="show_reservation_savings"></unset>
+    <unset token="diskSavings"></unset>
+    <unset token="vmSavings"></unset>
+    <unset token="recSavings"></unset>
+    <unset token="totalSavings"></unset>
+  </init>
+  <description>Show me the money</description>
+  <fieldset submitButton="false">
+    <input type="checkbox" token="totalSavings">
+      <label></label>
+      <choice value="true">Show Total Savings</choice>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>
+            sourcetype="azure:compute:disk" properties.diskState="Unattached" 
+| stats dc(id) AS count</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="underLabel">UNATTACHED DISKS</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <set token="show_disks">$click.value$</set>
+        </drilldown>
+      </single>
+    </panel>
+    <panel depends="$show_disk_cost$">
+      <single>
+        <search>
+          <done>
+            <set token="diskSavings">$result.Cost$</set>
+          </done>
+          <query>sourcetype=azure:billing
+    [search sourcetype="azure:compute:disk" "properties.diskState"=Unattached 
+    | fields id
+    | stats count by id
+    | rename id as properties.instanceId
+    | fields - count] 
+| dedup id 
+| stats sum(properties.pretaxCost) AS Cost</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">Potential Savings - Disks</option>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <drilldown>
+          <unset token="show_disks"></unset>
+        </drilldown>
+      </single>
+    </panel>
+    <panel depends="$show_disk_cost$">
+      <html>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#diskSearch">
+          Show SPL
+        </button>
+        
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#diskSearchLookup">
+          Show SPL (using a lookup)
+        </button>
+        
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#diskGDI">
+          Show GDI
+        </button>
+
+      </html>
+    </panel>
+  </row>
+  <row depends="$show_disks$">
+    <panel>
+      <title>Unattached Disks</title>
+      <table>
+        <search>
+          <query>sourcetype="azure:compute:disk" properties.diskState="Unattached" 
+| stats count by name, sku.name, properties.diskSizeGB | sort - properties.diskSizeGB | rename name AS Name, sku.name AS SKU, properties.diskSizeGB AS "Disk Size (GB)" | fields - count</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="show_disk_cost">$click.name$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>sourcetype="azure:compute:vm:instanceView" | spath output=statusCode path=statuses{}.code | search statusCode="PowerState/stopped" | stats dc(host)</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0xdc4e41"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">STOPPED VMS</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <set token="show_vms">$click.name$</set>
+        </drilldown>
+      </single>
+    </panel>
+    <panel depends="$show_vm_cost$">
+      <single>
+        <search>
+          <done>
+            <set token="vmSavings">$result.Cost$</set>
+          </done>
+          <query>sourcetype=azure:billing 
+[search sourcetype="azure:compute:vm" type="Microsoft.Compute/virtualMachines" 
+    [search sourcetype="azure:compute:vm:instanceView" 
+        | spath output=statusCode path=statuses{}.code 
+        | search statusCode="PowerState/stopped" 
+        | stats count by host 
+        | rename host as name 
+        | fields - count] 
+    | stats count by id 
+    | rename id as properties.instanceId
+    | fields - count]
+| dedup id 
+| stats sum(properties.pretaxCost) AS Cost</query>
+          <earliest>0</earliest>
+          <latest></latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Potential Savings - VMs</option>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <unset token="show_vms"></unset>
+        </drilldown>
+      </single>
+    </panel>
+    <panel depends="$show_vm_cost$">
+      <html>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vmSearch">
+          Show SPL
+        </button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vmGDI">
+          Show GDI
+        </button>
+
+      </html>
+    </panel>
+  </row>
+  <row depends="$show_vms$">
+    <panel>
+      <table>
+        <search>
+          <query>sourcetype="azure:compute:vm:instanceView" | spath output=statusCode path=statuses{}.code | search statusCode="PowerState/stopped" | stats values(statuses{}.displayStatus) AS Status, values(statuses{}.time) AS Time by host | rename host AS VM</query>
+          <earliest>-7d@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="show_vm_cost">$click.name$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>sourcetype="azure:reservation:recommendation" | stats dc(id)</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="underLabel">RESERVATION RECOMMENDATIONS</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">1</option>
+        <option name="useThousandSeparators">1</option>
+        <drilldown>
+          <set token="show_reservations">$click.name$</set>
+        </drilldown>
+      </single>
+    </panel>
+    <panel depends="$show_reservation_savings$">
+      <single>
+        <search>
+          <query>sourcetype="azure:reservation:recommendation" | dedup id |  stats sum(properties.netSavings) AS Savings</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+          <done>
+            <set token="recSavings">$result.Savings$</set>
+          </done>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="underLabel">Reservation Savings</option>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <unset token="show_reservations"></unset>
+        </drilldown>
+      </single>
+    </panel>
+    <panel depends="$show_reservation_savings$">
+      <html>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rrSearch">
+          Show SPL
+        </button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#rrGDI">
+          Show GDI
+        </button>
+
+      </html>
+    </panel>
+  </row>
+  <row depends="$show_reservations$">
+    <panel>
+      <table>
+        <search>
+          <query>sourcetype="azure:reservation:recommendation" | dedup id | table sku, properties.term, properties.costWithNoReservedInstances, properties.totalCostWithReservedInstances, properties.netSavings | rename sku AS SKU, properties.term AS Term, properties.costWithNoReservedInstances AS "Cost without Reserved Instances", properties.totalCostWithReservedInstances AS "Cost with Reserved Instances", properties.netSavings AS "Net Savings" | addcoltotals</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="show_reservation_savings">$click.name$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row depends="$totalSavings$">
+    <panel>
+      <single>
+        <search>
+          <query>
+            | makeresults | eval "Total Potential Savings" = $diskSavings$ + $vmSavings$ + $recSavings$ | table "Total Potential Savings" </query>
+        </search>
+        <option name="colorMode">none</option>
+        <option name="drilldown">all</option>
+        <option name="numberPrecision">0.00</option>
+        <option name="rangeColors">["0x53a051","0x53a051"]</option>
+        <option name="rangeValues">[1]</option>
+        <option name="underLabel">Potential Savings</option>
+        <option name="unit">$</option>
+        <option name="unitPosition">before</option>
+        <option name="useColors">1</option>
+        <drilldown>
+          <set token="show_disks">$click.value$</set>
+        </drilldown>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <!-- Disks -->
+        <div class="modal mlts-modal-no-padding" id="diskSearch" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - Disks - SPL</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+<table class="table table-striped">
+    <tbody>
+        <tr style="font-family: monospace;">
+            <td>sourcetype=azure:billing </td>
+            <td style="color: rgb(145, 175, 39);">// First, we bring in our basic billing data</td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td style="padding-left: 4em;">
+               [search sourcetype="azure:compute:disk" "properties.diskState"=Unattached <br/>
+                | fields id <br/>
+                | stats count by id <br/>
+                | rename id as properties.instanceId  <br/>
+                | fields - count]
+            </td>
+            <td style="color: rgb(145, 175, 39);">
+                // Next, we start a sub search to get only the unattached disks. <br/>
+                We only need the <u>id</u> field to pass along to the main search. <br/>
+                Use stats to dedplicate any <u>id</u> fields.
+                The main billing search uses the field <u>properties.instanceId</u> for the individual instances, so we need to rename the <u>id</u> field to <u>properties.instanceId</u>. <br/>
+                Finally, drop the <u>count</u> field. <br/>
+                In the end, the search will be something like this <br/>
+                <pre>sourcetype=azure:billing (properties.instanceId=1 OR properties.instanceId=2 OR properties.instanceId=n)</pre>
+            </td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td>| dedup id  </td>
+            <td style="color: rgb(145, 175, 39);">// Deduplicate any potential billing data records</td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td>| stats sum(properties.pretaxCost) AS Cost </td>
+            <td style="color: rgb(145, 175, 39);">// Finally, add up the cost field</td>
+        </tr>
+    </tbody>
+</table>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="modal mlts-modal-no-padding" id="diskSearchLookup" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - Disks - SPL (using a lookup)</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+<table class="table table-striped">
+    <tbody>
+        <tr style="font-family: monospace;">
+            <td>sourcetype=azure:billing </td>
+            <td style="color: rgb(145, 175, 39);">// First, we bring in our basic billing data</td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td style="padding-left: 4em;">
+              | lookup unattached_disks.csv id AS properties.instanceId <br/>
+              | where state = "Unattached"
+            </td>
+            <td style="color: rgb(145, 175, 39);">
+                // This search has better performance, but relies on a lookup generated from a saved search.  We use the lookup to find any unattached disks, but keep in mind that this data could be stale.
+            </td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td>| dedup id  </td>
+            <td style="color: rgb(145, 175, 39);">// Deduplicate any potential billing data records</td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td>| stats sum(properties.pretaxCost) AS Cost </td>
+            <td style="color: rgb(145, 175, 39);">// Finally, add up the cost field</td>
+        </tr>
+    </tbody>
+</table>
+
+<hr/>
+
+<h2 style="padding-left: 15px">Saved Search</h2>
+<table class="table table-striped">
+  <tbody>
+    <tr style="font-family: monospace;">
+            <td>sourcetype="azure:compute:disk" "properties.diskState"=Unattached <br/>
+    | fields id, properties.diskState <br/>
+    | rename properties.diskState AS state <br/>
+    | dedup id <br/>
+    | table id, state <br/>
+    | outputlookup unattached_disks.csv</td>
+    </tr>
+  </tbody>
+</table>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="modal" id="diskGDI" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - Disks - GDI</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+                <center>
+                  <a href="https://splunkbase.splunk.com/app/3757/" target="_blank">
+                    <img src="/static/app/conf19-MSFT/images/Azure_Add-on.png"/>
+                  </a>
+                </center>
+                
+                <br/>
+                <ul class="list-group">
+                  <li class="list-group-item">Azure Billing and Consumption Input</li>
+                  <li class="list-group-item">Azure Compute Input - Collect Mananged Disk Data</li>
+                </ul>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </html>
+      <html>
+        <!-- VMs -->
+        <div class="modal mlts-modal-no-padding" id="vmSearch" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - VMs - SPL</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+<table class="table table-striped">
+    <tbody>
+        <tr style="font-family: monospace;">
+            <td>sourcetype=azure:billing </td>
+            <td style="color: rgb(145, 175, 39);">// First, we bring in our basic billing data</td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td style="padding-left: 4em;">[search sourcetype="azure:compute:vm" type="Microsoft.Compute/virtualMachines"</td>
+            <td style="color: rgb(145, 175, 39);">
+                // Next, we start a sub search to get VM IDs. Unfortunately, VM metadata does not contain the power state of the VM - go figure?<br/>
+                Another data type called an <u>Instance View</u> contains this data instead, so we need to start antoher search...
+            </td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td style="padding-left: 8em;">
+               [search sourcetype="azure:compute:vm:instanceView" <br/>
+        | spath output=statusCode path=statuses{}.code <br/>
+        | search statusCode="PowerState/stopped" <br/>
+        | stats count by host <br/>
+        | rename host as name  <br/>
+        | fields - count] 
+            </td>
+            <td style="color: rgb(145, 175, 39);">
+              // This is the <u>Instance View</u> search.  We look for any statuses of "PowerState/stopped" and surface the name of the VM to the VM metadata search. <br/>
+                        <br/>
+              *Note: The 2 sub searches could be replaced with a lookup similar to the unattached disks example.
+            </td>
+        </tr>
+
+        <tr style="font-family: monospace;">
+            <td style="padding-left: 4em;">| stats count by id <br/>
+    | rename id as properties.instanceId <br/>
+    | fields - count]</td>
+            <td style="color: rgb(145, 175, 39);">// This is the end of our VM metadata search where we rename the VM id to <u>properties.instanceId</u> to use in the billing data search.</td>
+        </tr>
+        
+        <tr style="font-family: monospace;">
+            <td>| dedup id <br/>
+| stats sum(properties.pretaxCost) AS Cost</td>
+            <td style="color: rgb(145, 175, 39);">// Finally, we sum up the cost of the stopped VMs.</td>
+        </tr>
+        
+    </tbody>
+</table>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="modal" id="vmGDI" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - VMs - GDI</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+                <center>
+                  <a href="https://splunkbase.splunk.com/app/3757/" target="_blank">
+                    <img src="/static/app/conf19-MSFT/images/Azure_Add-on.png"/>
+                  </a>
+                </center>
+                
+                <br/>
+                <ul class="list-group">
+                  <li class="list-group-item">Azure Billing and Consumption Input</li>
+                  <li class="list-group-item">Azure Compute Input</li>
+                </ul>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </html>
+      <html>
+        <!-- Recommendations -->
+        <div class="modal mlts-modal-no-padding" id="rrSearch" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - Reservation Recommendations - SPL</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+<table class="table table-striped">
+    <tbody>
+        <tr style="font-family: monospace;">
+            <td>sourcetype="azure:reservation:recommendation"</td>
+            <td style="color: rgb(145, 175, 39);">// First, we bring in our reservation recommendation data.</td>
+        </tr>
+        
+        <tr style="font-family: monospace;">
+            <td>| dedup id</td>
+            <td style="color: rgb(145, 175, 39);">
+            // Then, dedup based on the reservation ID. </td>
+        </tr>
+        
+        <tr style="font-family: monospace;">
+            <td>| stats sum(properties.netSavings) AS Savings</td>
+            <td style="color: rgb(145, 175, 39);">// Finally, sum up our savings!</td>
+        </tr>
+
+    </tbody>
+</table>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+        <div class="modal" id="rrGDI" tabindex="-1" role="dialog" aria-hidden="true" style="display:none">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Potential Savings - Reservations - GDI</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">t</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                
+                <center>
+                  <a href="https://splunkbase.splunk.com/app/3757/" target="_blank">
+                    <img src="/static/app/conf19-MSFT/images/Azure_Add-on.png"/>
+                  </a>
+                </center>
+                
+                <br/>
+                <ul class="list-group">
+                  <li class="list-group-item">Azure Reservation Recommendation Input</li>
+                </ul>
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+      </html>
+    </panel>
+  </row>
+</form>

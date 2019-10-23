@@ -1,0 +1,61 @@
+<dashboard theme="light">
+  <label>Getting Data In</label>
+  <row>
+    <panel>
+      <title>Azure Service Map</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>| inputlookup "AzureServiceMap.csv" | search Resource!="#*" | stats count by Resource, "Data Source"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="sankey_diagram_app.sankey_diagram.colorMode">categorical</option>
+        <option name="sankey_diagram_app.sankey_diagram.maxColor">#3fc77a</option>
+        <option name="sankey_diagram_app.sankey_diagram.minColor">#d93f3c</option>
+        <option name="sankey_diagram_app.sankey_diagram.numOfBins">9</option>
+        <option name="sankey_diagram_app.sankey_diagram.showBackwards">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLabels">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLegend">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showSelf">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showTooltip">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.styleBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.useColors">true</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </viz>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Office 365 Service Map</title>
+      <viz type="sankey_diagram_app.sankey_diagram">
+        <search>
+          <query>| inputlookup "O365ServiceMap.csv" | search Resource!="#*" | stats count by Resource, "Data Source"</query>
+          <earliest>-60m@m</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="sankey_diagram_app.sankey_diagram.colorMode">categorical</option>
+        <option name="sankey_diagram_app.sankey_diagram.maxColor">#3fc77a</option>
+        <option name="sankey_diagram_app.sankey_diagram.minColor">#d93f3c</option>
+        <option name="sankey_diagram_app.sankey_diagram.numOfBins">9</option>
+        <option name="sankey_diagram_app.sankey_diagram.showBackwards">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLabels">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showLegend">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showSelf">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.showTooltip">true</option>
+        <option name="sankey_diagram_app.sankey_diagram.styleBackwards">false</option>
+        <option name="sankey_diagram_app.sankey_diagram.useColors">true</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </viz>
+    </panel>
+  </row>
+</dashboard>

@@ -1,0 +1,15 @@
+<nav search_view="search">
+  <view name="azure_gdi_resource_map" />
+  <view name="show_me_the_money" />
+  <view name="it_ops" />
+  <view name="security" />
+  <collection label="Searches">
+    <saved name="Billing Data" />
+    <collection label="Disks">
+      <saved name="Unused Disk Cost" />
+    </collection>
+  </collection>
+  
+  <view name="search" default='true' />
+  
+</nav>

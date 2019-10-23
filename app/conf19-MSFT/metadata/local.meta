@@ -1,0 +1,51 @@
+[app/ui]
+version = 7.3.0
+modtime = 1570230761.870876000
+
+[app/launcher]
+version = 7.3.0
+modtime = 1570230761.873319000
+
+[indexes/conf19]
+owner = admin
+version = 7.3.0
+modtime = 1570462209.723753000
+
+[views/show_me_the_money]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 7.3.0
+modtime = 1571871007.474879000
+
+[views/azure_gdi_resource_map]
+access = read : [ * ], write : [ admin, power ]
+export = none
+owner = admin
+version = 7.3.0
+modtime = 1571455689.751719000
+
+[nav/default]
+version = 7.3.0
+modtime = 1571782591.975603000
+
+[savedsearches/Unused%20Disk%20Cost]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 7.3.0
+modtime = 1571265033.984279000
+
+[savedsearches/Billing%20Data]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 7.3.0
+modtime = 1571265366.183290000
+
+[lookups/AzureServiceMap.csv]
+access = read : [ * ], write : [ admin ]
+export = none
+owner = admin
+version = 7.3.0
+modtime = 1571327955.023991000

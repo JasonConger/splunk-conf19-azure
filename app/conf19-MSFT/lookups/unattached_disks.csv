@@ -1,0 +1,12 @@
+id,state
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/CLOUDINSIGHTS/providers/Microsoft.Compute/disks/rehan-test2_DataDisk_0",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/CLOUDINSIGHTS/providers/Microsoft.Compute/disks/esha-test-vm_disk1_f24aa447b4344edd8474910b2680dfae",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/AZUREMARKETPLACEGROUP/providers/Microsoft.Compute/disks/newVM_disk2_da71e3d2818343d789282fcdde7cfe55",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/AZUREMARKETPLACEGROUP/providers/Microsoft.Compute/disks/newVM_disk1_60f7b82e761448d584bed6f7493d3cb5",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/AZUREMARKETPLACEGROUP/providers/Microsoft.Compute/disks/azureMarketplaceVM_OsDisk_1_1c37eb5b45934e47a3a04d113695c510",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/AZUREMARKETPLACEGROUP/providers/Microsoft.Compute/disks/azureMarketplaceVM_disk2_f091ae5ab2064bf7b4e554b243ada682",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/JC3DEV/providers/Microsoft.Compute/disks/W2016001_OsDisk_1_245b738280f6441ca09f22cffb28b270",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/JC3DEV/providers/Microsoft.Compute/disks/ubuntu001_OsDisk_1_e0d74b180a5047c8a232b885f38ea55e",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/JC3DEV/providers/Microsoft.Compute/disks/JC3Ubuntu_OsDisk_1_66048e406b284800a9223562210f7b9c",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/JC3DEV/providers/Microsoft.Compute/disks/JC3Test_OsDisk_1_e8d5406f079d4abe98ed11fed354dfda",Unattached
+"/subscriptions/ae4ab7c9-dcdf-4427-9729-48e8c7551be9/resourceGroups/JC3DEV/providers/Microsoft.Compute/disks/JC3RHEL_OsDisk_1_b40c6d31e8bd4979a201ec7381415418",Unattached

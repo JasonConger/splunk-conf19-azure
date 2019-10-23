@@ -1,0 +1,69 @@
+h1.dashboard-title::before {
+    content: url(/static/app/conf19-MSFT/images/money.png)
+}
+
+
+/* Modal */
+
+.mlts-modal {
+    display: none;
+}
+
+#langmodal {
+    opacity: 1;
+}
+
+.modal-backdrop {
+    opacity: 0.5 !important;
+}
+
+.mlts-modal-no-padding {
+    width: 80%;
+    left: 10%;
+    margin: auto;
+}
+
+.modal-body {
+    overflow: scroll;
+}
+
+#modalAdjustFilters .modal-body {
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    overflow: auto;
+}
+
+#modalAdjustFilters>li::-webkit-scrollbar {
+    display: none;
+}
+
+.mlts-modal-no-padding .modal-body {
+    padding: 0;
+}
+
+.mlts-modal-form-inline>* {
+    display: inline-block;
+}
+
+.mlts-modal-form-inline>*:not(:first-child) {
+    margin-left: 5px;
+}
+
+.mlts-modal-form-inline>p {
+    vertical-align: middle;
+}
+
+.mlts-modal-form-inline>.splunk-textinput input[type="text"] {
+    width: 75px;
+}
+
+.modal-extra-wide {
+    width: 1200px;
+    margin-left: -600px;
+}
+
+.modal-basically-full-screen {
+    width: 90%;
+    margin-left: -45%;
+}
+
+

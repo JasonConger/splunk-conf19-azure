@@ -1,0 +1,19 @@
+Resource,Data Source
+# Office 365
+SharePoint Online,Management Activity API
+Project,Management Activity API
+Exchange,Management Activity API
+Azure Active Directory (O365 Schema),Management Activity API
+DLP,Management Activity API
+Yammer,Management Activity API
+Sway,Management Activity API
+Microsoft Teams,Management Activity API
+Office 365 Advanced Threat Protection,Management Activity API
+Power BI,Management Activity API
+Workplace Analytics,Management Activity API
+
+
+Management Activity API,Splunk Add-on for Microsoft Office 365
+
+Email Message Trace,Office 365 Reporting Web Service
+Office 365 Reporting Web Service,Microsoft Office 365 Reporting Add-on for Splunk
